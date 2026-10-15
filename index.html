@@ -435,7 +435,9 @@
               document.getElementById('compressOrigSize').textContent=formatSize(origSize);
               document.getElementById('compressNewSize').textContent=formatSize(blob.size);
               document.getElementById('compressSaved').textContent=formatSize(Math.abs(origSize-blob.size))+(origSize>=blob.size?' saved':' larger');
-              document.getElementById('compressDownload').href=url;
+              const downloadLink = document.getElementById('compressDownload');
+				downloadLink.href = url;
+				downloadLink.download = 'compressed-image.jpg';
               resDiv.classList.remove('hidden');
             },'image/jpeg',q);
           };
