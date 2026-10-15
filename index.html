@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>ProImage Ultimate Toolbox | Upscale, Compress, BG Remove, Crop, PDF & More</title>
+  <!-- Tailwind + Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/pica@8.0.0/dist/pica.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/dist/background-removal.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f8fafc;
+    }
+    .glass-card {
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+    }
+    .modal-overlay {
+      background-color: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(6px);
+    }
+    .progress-ring {
+      animation: spin 1.2s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .tool-card {
+      transition: all 0.25s ease;
+    }
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 30px -12px rgba(0,0,0,0.12);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
+          <i class="fas fa-wand-magic-sparkles text-white text-lg"></i>
+        </div>
+        <h1 class="text-xl font-bold text-gray-800">ProImage <span class="text-indigo-600">Ultimate</span></h1>
+      </div>
+      <nav class="text-sm font-medium text-gray-600 hidden sm:flex gap-4">
+        <a href="#" class="hover:text-indigo-600 transition">Home</a>
+        <a href="#" class="hover:text-indigo-600 transition">About</a>
+        <a href="#" class="hover:text-indigo-600 transition">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content: Tool Cards -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+    <div class="text-center mb-10">
+      <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">All-In-One Image Toolbox</h2>
+      <p class="text-gray-500 mt-2 max-w-2xl mx-auto">Background removal, scaling, compression, cropping, PDF conversion, format conversion, rotate and more. 100% client‑side.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      <!-- Scale / Resize Card -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center mb-4"><i class="fas fa-expand text-2xl text-indigo-600"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">Scale & Resize</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">Upscale, downscale or set exact pixels.</p>
+        <button onclick="openModal('scaleModal')" class="mt-auto w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+      <!-- Compress Card -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center mb-4"><i class="fas fa-compress text-2xl text-emerald-600"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">Compress</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">Reduce file size, optional resize.</p>
+        <button onclick="openModal('compressModal')" class="mt-auto w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+      <!-- BG Remove Card -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-rose-100 flex items-center justify-center mb-4"><i class="fas fa-eraser text-2xl text-rose-500"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">Remove Background</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">AI powered, local & unlimited.</p>
+        <button onclick="openModal('bgRemoveModal')" class="mt-auto w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+      <!-- Crop Card -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center mb-4"><i class="fas fa-crop-alt text-2xl text-amber-600"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">Crop & Precision</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">Freehand or enter exact pixel dimensions.</p>
+        <button onclick="openModal('cropModal')" class="mt-auto w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+      <!-- Img to PDF -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center mb-4"><i class="fas fa-file-pdf text-2xl text-blue-600"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">Image to PDF</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">Convert any image into a PDF document.</p>
+        <button onclick="openModal('imgToPdfModal')" class="mt-auto w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+      <!-- PDF to Img -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center mb-4"><i class="fas fa-file-image text-2xl text-orange-600"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">PDF to Image</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">Extract pages as high‑quality PNG.</p>
+        <button onclick="openModal('pdfToImgModal')" class="mt-auto w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+      <!-- Format Converter -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center mb-4"><i class="fas fa-exchange-alt text-2xl text-purple-600"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">Format Converter</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">PNG ↔ JPG ↔ WebP.</p>
+        <button onclick="openModal('convertModal')" class="mt-auto w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+      <!-- Rotate & Flip -->
+      <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center tool-card">
+        <div class="w-14 h-14 rounded-2xl bg-teal-100 flex items-center justify-center mb-4"><i class="fas fa-redo-alt text-2xl text-teal-600"></i></div>
+        <h3 class="font-bold text-lg text-gray-800">Rotate & Flip</h3>
+        <p class="text-sm text-gray-500 mt-1 mb-4">90° rotation, mirror, flip.</p>
+        <button onclick="openModal('rotateModal')" class="mt-auto w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-md">Open Tool</button>
+      </div>
+    </div>
+    <p class="text-center text-xs text-gray-400 mt-8">💡 Works best when opened with a local server (e.g., Live Server) for background removal.</p>
+  </main>
+
+  <footer class="bg-white/80 border-t border-gray-200 py-5 mt-auto">
+    <div class="text-center text-gray-500 text-sm">© 2025 ProImage Ultimate · All processing happens in your browser.</div>
+  </footer>
+
+  <!-- ========== MODALS ========== -->
+
+  <!-- Scale / Resize Modal -->
+  <div id="scaleModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('scaleModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('scaleModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-expand text-indigo-600 mr-2"></i>Scale & Resize</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer" id="scaleDropZone">
+          <input type="file" id="scaleImageUpload" accept="image/*" class="hidden" />
+          <i class="fas fa-cloud-upload-alt text-3xl text-indigo-400 mb-2"></i>
+          <p class="font-medium" id="scaleDropText">Drop image or click</p>
+          <p class="text-xs text-gray-400" id="scaleFileInfo"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="radio" name="scaleMode" id="scaleByFactor" checked class="accent-indigo-600" />
+          <label for="scaleByFactor" class="text-sm">Scale Factor</label>
+          <input type="radio" name="scaleMode" id="scaleByPixels" class="accent-indigo-600 ml-2" />
+          <label for="scaleByPixels" class="text-sm">Exact Pixels</label>
+        </div>
+        <div id="scaleFactorGroup">
+          <select id="scaleSelect" class="border rounded-lg px-3 py-2 text-sm w-full">
+            <option value="0.25">0.25x</option><option value="0.5">0.5x</option><option value="0.75">0.75x</option><option value="1" selected>1x (Original)</option><option value="2">2x</option><option value="3">3x</option><option value="4">4x</option><option value="8">8x</option>
+          </select>
+        </div>
+        <div id="scalePixelGroup" class="hidden flex gap-2">
+          <input type="number" id="scaleWidth" placeholder="Width px" class="border rounded-lg px-3 py-2 text-sm w-1/2" />
+          <input type="number" id="scaleHeight" placeholder="Height px" class="border rounded-lg px-3 py-2 text-sm w-1/2" />
+          <label class="flex items-center gap-1 text-xs"><input type="checkbox" id="scaleAspect" checked class="accent-indigo-600" /> Lock aspect</label>
+        </div>
+        <button id="scaleBtn" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700">Scale</button>
+        <div id="scaleProgress" class="hidden text-center text-sm text-gray-500"><span class="progress-ring inline-block w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full mr-1"></span> Processing...</div>
+        <div id="scaleResult" class="hidden mt-4">
+          <div class="grid grid-cols-2 gap-2 text-sm"><div class="bg-gray-50 p-2 rounded-lg">Original: <span id="scaleOrigSize"></span></div><div class="bg-gray-50 p-2 rounded-lg">Result: <span id="scaleNewSize"></span></div></div>
+          <img id="scaleResultImg" class="rounded-xl max-h-64 mx-auto mt-3" />
+          <a id="scaleDownload" class="mt-3 inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700" download>Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compress Modal -->
+  <div id="compressModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('compressModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('compressModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-compress text-emerald-600 mr-2"></i>Compress Image</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer" id="compressDropZone">
+          <input type="file" id="compressImageUpload" accept="image/*" class="hidden" />
+          <i class="fas fa-image text-3xl text-emerald-400 mb-2"></i>
+          <p class="font-medium" id="compressDropText">Drop image or click</p>
+        </div>
+        <div class="flex gap-2 items-end">
+          <div class="flex-1"><label class="text-sm">Quality: <span id="compressQualityVal">85</span>%</label><input type="range" id="compressQuality" min="5" max="100" value="85" class="w-full accent-emerald-500" /></div>
+          <div class="w-1/3"><label class="text-xs">Max width (px)</label><input type="number" id="compressMaxWidth" placeholder="optional" class="border rounded px-2 py-1 text-sm w-full" /></div>
+        </div>
+        <button id="compressBtn" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700">Compress</button>
+        <div id="compressResult" class="hidden mt-4">
+          <div class="grid grid-cols-3 gap-2 text-sm"><div class="bg-gray-50 p-2 rounded-lg">Original: <span id="compressOrigSize"></span></div><div class="bg-gray-50 p-2 rounded-lg">Compressed: <span id="compressNewSize"></span></div><div class="bg-gray-50 p-2 rounded-lg">Saved: <span id="compressSaved"></span></div></div>
+          <img id="compressResultImg" class="rounded-xl max-h-64 mx-auto mt-3" />
+          <a id="compressDownload" class="mt-3 inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700" download>Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BG Remove Modal -->
+  <div id="bgRemoveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('bgRemoveModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('bgRemoveModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-eraser text-rose-500 mr-2"></i>Remove Background</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer" id="bgDropZone">
+          <input type="file" id="bgImageUpload" accept="image/*" class="hidden" />
+          <i class="fas fa-portrait text-3xl text-rose-400 mb-2"></i>
+          <p class="font-medium" id="bgDropText">Upload image (portrait works best)</p>
+        </div>
+        <button id="bgRemoveBtn" class="w-full bg-rose-500 text-white py-3 rounded-xl font-semibold hover:bg-rose-600 disabled:opacity-50" disabled>Remove Background</button>
+        <div id="bgProgress" class="hidden text-center text-sm text-gray-600"><span class="progress-ring inline-block w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full mr-1"></span> Removing...</div>
+        <div id="bgResult" class="hidden mt-4">
+          <img id="bgResultImg" class="rounded-xl max-h-64 mx-auto bg-gray-200" />
+          <a id="bgDownload" class="mt-3 inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700" download="nobg.png">Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crop Modal -->
+  <div id="cropModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('cropModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('cropModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-crop-alt text-amber-600 mr-2"></i>Crop Image</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer" id="cropDropZone">
+          <input type="file" id="cropImageUpload" accept="image/*" class="hidden" />
+          <i class="fas fa-upload text-2xl text-amber-500"></i>
+          <p class="font-medium" id="cropDropText">Upload image to crop</p>
+        </div>
+        <div id="cropContainer" class="hidden relative mx-auto border rounded-lg overflow-hidden" style="max-width:100%;">
+          <canvas id="cropCanvas" class="w-full h-auto block"></canvas>
+          <div id="cropSelBox" class="absolute border-2 border-amber-400 bg-amber-200/30 hidden"></div>
+        </div>
+        <div class="flex gap-2 items-center">
+          <label class="text-xs">Selection:</label>
+          <input type="number" id="cropSelX" placeholder="X" class="border rounded px-2 py-1 text-xs w-16" disabled />
+          <input type="number" id="cropSelY" placeholder="Y" class="border rounded px-2 py-1 text-xs w-16" disabled />
+          <input type="number" id="cropSelW" placeholder="W" class="border rounded px-2 py-1 text-xs w-20" disabled />
+          <input type="number" id="cropSelH" placeholder="H" class="border rounded px-2 py-1 text-xs w-20" disabled />
+          <button id="cropApplyManual" class="bg-gray-200 text-xs px-2 py-1 rounded hidden">Apply</button>
+        </div>
+        <div class="flex gap-3 justify-center">
+          <button id="cropPerformBtn" class="bg-amber-500 text-white px-5 py-2 rounded-lg font-medium hover:bg-amber-600 hidden">Crop Selection</button>
+          <button id="cropResetBtn" class="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg font-medium hover:bg-gray-300 hidden">Reset</button>
+        </div>
+        <div id="cropResult" class="hidden mt-4 text-center">
+          <img id="cropResultImg" class="rounded-xl max-h-64 mx-auto border" />
+          <a id="cropDownload" class="mt-3 inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700" download="cropped.png">Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Img to PDF Modal -->
+  <div id="imgToPdfModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('imgToPdfModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('imgToPdfModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-file-pdf text-blue-600 mr-2"></i>Image to PDF</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer" id="imgToPdfDropZone">
+          <input type="file" id="imgToPdfUpload" accept="image/*" class="hidden" />
+          <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2"></i>
+          <p class="font-medium" id="imgToPdfDropText">Upload image</p>
+        </div>
+        <div><label class="text-sm">Page Size:</label><select id="pdfPageSize" class="border rounded px-3 py-2 text-sm w-full"><option value="A4">A4</option><option value="letter">Letter</option><option value="fit">Fit to image</option></select></div>
+        <button id="imgToPdfBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700">Generate PDF</button>
+        <div id="imgToPdfResult" class="hidden mt-4">
+          <a id="imgToPdfDownload" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700" download="converted.pdf">Download PDF</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF to Img Modal -->
+  <div id="pdfToImgModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('pdfToImgModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('pdfToImgModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-file-image text-orange-600 mr-2"></i>PDF to Images</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer" id="pdfToImgDropZone">
+          <input type="file" id="pdfToImgUpload" accept=".pdf" class="hidden" />
+          <i class="fas fa-file-pdf text-3xl text-orange-400 mb-2"></i>
+          <p class="font-medium" id="pdfToImgDropText">Upload PDF</p>
+        </div>
+        <button id="pdfToImgBtn" class="w-full bg-orange-500 text-white py-3 rounded-xl font-semibold hover:bg-orange-600">Extract Images</button>
+        <div id="pdfToImgProgress" class="hidden text-center text-sm"><span class="progress-ring inline-block w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full mr-1"></span> Processing...</div>
+        <div id="pdfToImgResult" class="hidden mt-4 grid grid-cols-2 gap-3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Format Converter Modal -->
+  <div id="convertModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('convertModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('convertModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-exchange-alt text-purple-600 mr-2"></i>Format Converter</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer" id="convertDropZone">
+          <input type="file" id="convertImageUpload" accept="image/*" class="hidden" />
+          <i class="fas fa-image text-3xl text-purple-400 mb-2"></i>
+          <p class="font-medium" id="convertDropText">Upload image</p>
+        </div>
+        <div><label class="text-sm">Convert to:</label><select id="convertFormat" class="border rounded px-3 py-2 text-sm w-full"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select></div>
+        <button id="convertBtn" class="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700">Convert</button>
+        <div id="convertResult" class="hidden mt-4 text-center">
+          <img id="convertResultImg" class="rounded-xl max-h-64 mx-auto" />
+          <a id="convertDownload" class="mt-3 inline-block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700" download>Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rotate & Flip Modal -->
+  <div id="rotateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('rotateModal')"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 z-10">
+      <button onclick="closeModal('rotateModal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <h3 class="text-xl font-bold mb-4"><i class="fas fa-redo-alt text-teal-600 mr-2"></i>Rotate & Flip</h3>
+      <div class="space-y-4">
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-5 text-center cursor-pointer" id="rotateDropZone">
+          <input type="file" id="rotateImageUpload" accept="image/*" class="hidden" />
+          <i class="fas fa-cloud-upload-alt text-3xl text-teal-400 mb-2"></i>
+          <p class="font-medium" id="rotateDropText">Upload image</p>
+        </div>
+        <div class="flex gap-2 justify-center flex-wrap">
+          <button class="bg-teal-100 px-3 py-2 rounded-lg" id="rotateCW"><i class="fas fa-redo"></i> 90° CW</button>
+          <button class="bg-teal-100 px-3 py-2 rounded-lg" id="rotateCCW"><i class="fas fa-undo"></i> 90° CCW</button>
+          <button class="bg-teal-100 px-3 py-2 rounded-lg" id="flipH"><i class="fas fa-arrows-alt-h"></i> Flip H</button>
+          <button class="bg-teal-100 px-3 py-2 rounded-lg" id="flipV"><i class="fas fa-arrows-alt-v"></i> Flip V</button>
+        </div>
+        <div class="text-center"><canvas id="rotateCanvas" class="max-w-full max-h-64 mx-auto hidden border rounded"></canvas></div>
+        <button id="rotateDownload" class="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 hidden" download="rotated.png">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- UTILS ----------
+    function formatSize(bytes) { if (!bytes) return '0 B'; const k=1024; const sizes=['B','KB','MB','GB']; const i=Math.floor(Math.log(bytes)/Math.log(k)); return parseFloat((bytes/Math.pow(k,i)).toFixed(2))+' '+sizes[i]; }
+    window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
+    window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+    document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.fixed.inset-0.z-50').forEach(el=>el.classList.add('hidden')); });
+
+    // ---------- SCALE / RESIZE ----------
+    (function(){
+      const dz=document.getElementById('scaleDropZone'), fi=document.getElementById('scaleImageUpload'), dt=document.getElementById('scaleDropText'), finfo=document.getElementById('scaleFileInfo');
+      const factorRadio=document.getElementById('scaleByFactor'), pixelRadio=document.getElementById('scaleByPixels');
+      const factorGroup=document.getElementById('scaleFactorGroup'), pixelGroup=document.getElementById('scalePixelGroup');
+      const scaleSelect=document.getElementById('scaleSelect'), widthInput=document.getElementById('scaleWidth'), heightInput=document.getElementById('scaleHeight'), aspectCheck=document.getElementById('scaleAspect');
+      const btn=document.getElementById('scaleBtn'), prog=document.getElementById('scaleProgress'), resDiv=document.getElementById('scaleResult');
+      let origFile=null, origDataURL=null, origW=0, origH=0, origSize=0;
+
+      factorRadio.addEventListener('change',()=>{ factorGroup.classList.remove('hidden'); pixelGroup.classList.add('hidden'); });
+      pixelRadio.addEventListener('change',()=>{ factorGroup.classList.add('hidden'); pixelGroup.classList.remove('hidden'); });
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('border-indigo-400');});
+      dz.addEventListener('dragleave',()=>dz.classList.remove('border-indigo-400'));
+      dz.addEventListener('drop',e=>{e.preventDefault(); dz.classList.remove('border-indigo-400'); if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) loadFile(fi.files[0]); });
+      function loadFile(file){
+        origFile=file; origSize=file.size; dt.textContent='✅ '+file.name; finfo.textContent=formatSize(file.size);
+        const r=new FileReader(); r.onload=e=>{ origDataURL=e.target.result; const img=new Image(); img.onload=()=>{origW=img.width; origH=img.height; widthInput.placeholder=origW; heightInput.placeholder=origH;}; img.src=origDataURL; }; r.readAsDataURL(file);
+      }
+      btn.addEventListener('click',async ()=>{
+        if(!origFile) return alert('Upload image');
+        let targetW, targetH;
+        if(factorRadio.checked){
+          const scale=parseFloat(scaleSelect.value);
+          targetW=Math.round(origW*scale); targetH=Math.round(origH*scale);
+        }else{
+          targetW=parseInt(widthInput.value) || origW; targetH=parseInt(heightInput.value) || origH;
+          if(aspectCheck.checked && (widthInput.value||heightInput.value)){
+            if(widthInput.value && !heightInput.value) targetH=Math.round((targetW/origW)*origH);
+            else if(!widthInput.value && heightInput.value) targetW=Math.round((targetH/origH)*origW);
+          }
+        }
+        prog.classList.remove('hidden'); resDiv.classList.add('hidden');
+        const img=new Image(); img.src=origDataURL; await new Promise(r=>img.onload=r);
+        const canvas=document.createElement('canvas'); canvas.width=targetW; canvas.height=targetH;
+        try{
+          const resized=await pica().resize(img, canvas);
+          const blob=await pica().toBlob(resized,'image/png',0.92);
+          const url=URL.createObjectURL(blob);
+          document.getElementById('scaleResultImg').src=url;
+          document.getElementById('scaleOrigSize').textContent=formatSize(origSize);
+          document.getElementById('scaleNewSize').textContent=formatSize(blob.size);
+          document.getElementById('scaleDownload').href=url;
+          resDiv.classList.remove('hidden');
+        }catch(err){alert('Scaling error: '+err.message);}
+        prog.classList.add('hidden');
+      });
+    })();
+
+    // ---------- COMPRESS ----------
+    (function(){
+      const dz=document.getElementById('compressDropZone'), fi=document.getElementById('compressImageUpload'), dt=document.getElementById('compressDropText');
+      const quality=document.getElementById('compressQuality'), qVal=document.getElementById('compressQualityVal'), maxW=document.getElementById('compressMaxWidth');
+      const btn=document.getElementById('compressBtn'), resDiv=document.getElementById('compressResult');
+      let origFile=null, origSize=0;
+      quality.addEventListener('input',()=>qVal.textContent=quality.value);
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('border-emerald-400');});
+      dz.addEventListener('dragleave',()=>dz.classList.remove('border-emerald-400'));
+      dz.addEventListener('drop',e=>{e.preventDefault(); dz.classList.remove('border-emerald-400'); if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) loadFile(fi.files[0]); });
+      function loadFile(file){ origFile=file; origSize=file.size; dt.textContent='✅ '+file.name; }
+      btn.addEventListener('click',()=>{
+        if(!origFile) return alert('Upload image');
+        const q=parseInt(quality.value)/100;
+        const reader=new FileReader();
+        reader.onload=function(e){
+          const img=new Image(); img.src=e.target.result;
+          img.onload=function(){
+            let w=img.width, h=img.height;
+            const maxWVal=parseInt(maxW.value);
+            if(maxWVal && w>maxWVal){ const ratio=maxWVal/w; w=maxWVal; h=Math.round(h*ratio); }
+            const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+            const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,w,h);
+            canvas.toBlob(blob=>{
+              const url=URL.createObjectURL(blob);
+              document.getElementById('compressResultImg').src=url;
+              document.getElementById('compressOrigSize').textContent=formatSize(origSize);
+              document.getElementById('compressNewSize').textContent=formatSize(blob.size);
+              document.getElementById('compressSaved').textContent=formatSize(Math.abs(origSize-blob.size))+(origSize>=blob.size?' saved':' larger');
+              document.getElementById('compressDownload').href=url;
+              resDiv.classList.remove('hidden');
+            },'image/jpeg',q);
+          };
+        };
+        reader.readAsDataURL(origFile);
+      });
+    })();
+
+    // ---------- BG REMOVE (local) ----------
+    (function(){
+      const dz=document.getElementById('bgDropZone'), fi=document.getElementById('bgImageUpload'), dt=document.getElementById('bgDropText');
+      const btn=document.getElementById('bgRemoveBtn'), prog=document.getElementById('bgProgress'), resDiv=document.getElementById('bgResult');
+      let selFile=null;
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('border-rose-400');});
+      dz.addEventListener('dragleave',()=>dz.classList.remove('border-rose-400'));
+      dz.addEventListener('drop',e=>{e.preventDefault(); dz.classList.remove('border-rose-400'); if(e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) loadFile(fi.files[0]); });
+      function loadFile(file){ selFile=file; dt.textContent='✅ '+file.name; btn.disabled=false; }
+      btn.addEventListener('click',async ()=>{
+        if(!selFile) return;
+        btn.disabled=true; prog.classList.remove('hidden'); resDiv.classList.add('hidden');
+        try{
+          const blob=await removeBackground(selFile);
+          const url=URL.createObjectURL(blob);
+          document.getElementById('bgResultImg').src=url;
+          document.getElementById('bgDownload').href=url;
+          resDiv.classList.remove('hidden');
+        }catch(err){ alert('BG removal failed: '+err.message); }
+        prog.classList.add('hidden'); btn.disabled=false;
+      });
+    })();
+
+    // ---------- CROP ----------
+    (function(){
+      const dz=document.getElementById('cropDropZone'), fi=document.getElementById('cropImageUpload'), dt=document.getElementById('cropDropText');
+      const container=document.getElementById('cropContainer'), canvas=document.getElementById('cropCanvas'), selBox=document.getElementById('cropSelBox');
+      const selX=document.getElementById('cropSelX'), selY=document.getElementById('cropSelY'), selW=document.getElementById('cropSelW'), selH=document.getElementById('cropSelH');
+      const applyBtn=document.getElementById('cropApplyManual'), cropBtn=document.getElementById('cropPerformBtn'), resetBtn=document.getElementById('cropResetBtn');
+      const resDiv=document.getElementById('cropResult');
+      let img=null, imgW=0, imgH=0, selection=null, dragging=false, start={}, end={};
+
+      function updateInputs(){
+        if(!selection){ selX.value=''; selY.value=''; selW.value=''; selH.value=''; selX.disabled=selY.disabled=selW.disabled=selH.disabled=true; applyBtn.classList.add('hidden'); }
+        else{
+          selX.value=Math.round(selection.x); selY.value=Math.round(selection.y); selW.value=Math.round(selection.w); selH.value=Math.round(selection.h);
+          selX.disabled=selY.disabled=selW.disabled=selH.disabled=false; applyBtn.classList.remove('hidden');
+        }
+      }
+      function applyInputSelection(){
+        const x=parseInt(selX.value)||0, y=parseInt(selY.value)||0, w=parseInt(selW.value)||100, h=parseInt(selH.value)||100;
+        selection={x:Math.max(0,x), y:Math.max(0,y), w:Math.min(w,imgW-x), h:Math.min(h,imgH-y)};
+        updateSelBox(); updateInputs();
+      }
+      applyBtn.addEventListener('click',applyInputSelection);
+
+      function updateSelBox(){
+        if(!selection){ selBox.classList.add('hidden'); return; }
+        const rect=canvas.getBoundingClientRect();
+        const sx=rect.width/canvas.width, sy=rect.height/canvas.height;
+        selBox.style.left=(selection.x*sx)+'px'; selBox.style.top=(selection.y*sy)+'px';
+        selBox.style.width=(selection.w*sx)+'px'; selBox.style.height=(selection.h*sy)+'px';
+        selBox.classList.remove('hidden');
+      }
+      function getCoords(e){
+        const rect=canvas.getBoundingClientRect();
+        const sx=canvas.width/rect.width, sy=canvas.height/rect.height;
+        const cx=e.touches?e.touches[0].clientX:e.clientX, cy=e.touches?e.touches[0].clientY:e.clientY;
+        return {x:(cx-rect.left)*sx, y:(cy-rect.top)*sy};
+      }
+      function drawSel(){ if(selection){ const ctx=canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(img,0,0); updateSelBox(); } }
+
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('dragover',e=>{e.preventDefault(); dz.classList.add('border-amber-400');});
+      dz.addEventListener('dragleave',()=>dz.classList.remove('border-amber-400'));
+      dz.addEventListener('drop',e=>{e.preventDefault(); dz.classList.remove('border-amber-400'); if(e.dataTransfer.files[0]) loadImg(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) loadImg(fi.files[0]); });
+
+      function loadImg(file){
+        const reader=new FileReader();
+        reader.onload=e=>{
+          img=new Image(); img.onload=()=>{
+            imgW=img.width; imgH=img.height; canvas.width=imgW; canvas.height=imgH;
+            canvas.getContext('2d').drawImage(img,0,0);
+            container.classList.remove('hidden'); cropBtn.classList.remove('hidden'); resetBtn.classList.remove('hidden');
+            resDiv.classList.add('hidden'); selection=null; selBox.classList.add('hidden'); updateInputs();
+            dt.textContent='✅ '+file.name;
+          }; img.src=e.target.result;
+        }; reader.readAsDataURL(file);
+      }
+
+      canvas.addEventListener('mousedown',e=>{ e.preventDefault(); const c=getCoords(e); start=c; dragging=true; });
+      canvas.addEventListener('mousemove',e=>{ if(!dragging) return; end=getCoords(e); selection={x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),w:Math.abs(end.x-start.x),h:Math.abs(end.y-start.y)}; drawSel(); updateInputs(); });
+      canvas.addEventListener('mouseup',()=>{ dragging=false; });
+      canvas.addEventListener('touchstart',e=>{ e.preventDefault(); const c=getCoords(e); start=c; dragging=true; });
+      canvas.addEventListener('touchmove',e=>{ e.preventDefault(); if(!dragging) return; end=getCoords(e); selection={x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),w:Math.abs(end.x-start.x),h:Math.abs(end.y-start.y)}; drawSel(); updateInputs(); });
+      canvas.addEventListener('touchend',()=>{ dragging=false; });
+
+      resetBtn.addEventListener('click',()=>{ selection=null; selBox.classList.add('hidden'); canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height); canvas.getContext('2d').drawImage(img,0,0); updateInputs(); });
+      cropBtn.addEventListener('click',()=>{
+        if(!selection||selection.w<5||selection.h<5) return alert('Select area first');
+        const cropCanvas=document.createElement('canvas'); cropCanvas.width=selection.w; cropCanvas.height=selection.h;
+        cropCanvas.getContext('2d').drawImage(canvas,selection.x,selection.y,selection.w,selection.h,0,0,selection.w,selection.h);
+        cropCanvas.toBlob(blob=>{
+          const url=URL.createObjectURL(blob);
+          document.getElementById('cropResultImg').src=url;
+          document.getElementById('cropDownload').href=url;
+          resDiv.classList.remove('hidden');
+        },'image/png');
+      });
+    })();
+
+    // ---------- IMG TO PDF ----------
+    (function(){
+      const dz=document.getElementById('imgToPdfDropZone'), fi=document.getElementById('imgToPdfUpload'), dt=document.getElementById('imgToPdfDropText');
+      const sizeSel=document.getElementById('pdfPageSize'), btn=document.getElementById('imgToPdfBtn'), resDiv=document.getElementById('imgToPdfResult');
+      let imgData=null;
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('dragover',e=>{e.preventDefault();});
+      dz.addEventListener('drop',e=>{e.preventDefault(); if(e.dataTransfer.files[0]) load(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) load(fi.files[0]); });
+      function load(file){
+        const r=new FileReader(); r.onload=e=>{ imgData=e.target.result; dt.textContent='✅ '+file.name; }; r.readAsDataURL(file);
+      }
+      btn.addEventListener('click',()=>{
+        if(!imgData) return alert('Upload image');
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const img=new Image(); img.src=imgData;
+        img.onload=()=>{
+          let w=img.width, h=img.height;
+          const size=sizeSel.value;
+          if(size!=='fit'){
+            const dims={A4:[210,297],letter:[215.9,279.4]}[size];
+            const ratio=Math.min(dims[0]/w, dims[1]/h);
+            w*=ratio; h*=ratio;
+            doc.addImage(imgData,'JPEG',(doc.internal.pageSize.getWidth()-w)/2,(doc.internal.pageSize.getHeight()-h)/2,w,h);
+          }else doc.addImage(imgData,'JPEG',0,0,doc.internal.pageSize.getWidth(),doc.internal.pageSize.getHeight()* (h/w));
+          const blob=doc.output('blob');
+          document.getElementById('imgToPdfDownload').href=URL.createObjectURL(blob);
+          resDiv.classList.remove('hidden');
+        };
+      });
+    })();
+
+    // ---------- PDF TO IMG ----------
+    (function(){
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      const dz=document.getElementById('pdfToImgDropZone'), fi=document.getElementById('pdfToImgUpload'), dt=document.getElementById('pdfToImgDropText');
+      const btn=document.getElementById('pdfToImgBtn'), prog=document.getElementById('pdfToImgProgress'), resDiv=document.getElementById('pdfToImgResult');
+      let pdfFile=null;
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('drop',e=>{e.preventDefault(); if(e.dataTransfer.files[0]) load(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) load(fi.files[0]); });
+      function load(file){ pdfFile=file; dt.textContent='✅ '+file.name; }
+      btn.addEventListener('click',async ()=>{
+        if(!pdfFile) return alert('Upload PDF');
+        prog.classList.remove('hidden'); resDiv.classList.add('hidden'); resDiv.innerHTML='';
+        const reader=new FileReader();
+        reader.onload=async function(){
+          const typedarray=new Uint8Array(this.result);
+          const pdf=await pdfjsLib.getDocument(typedarray).promise;
+          for(let i=1;i<=pdf.numPages;i++){
+            const page=await pdf.getPage(i);
+            const vp=page.getViewport({scale:2});
+            const canvas=document.createElement('canvas'); canvas.width=vp.width; canvas.height=vp.height;
+            const ctx=canvas.getContext('2d');
+            await page.render({canvasContext:ctx, viewport:vp}).promise;
+            const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+            const url=URL.createObjectURL(blob);
+            const div=document.createElement('div'); div.className='text-center';
+            div.innerHTML=`<img src="${url}" class="rounded max-h-40 mx-auto border mb-1" /><a href="${url}" download="page_${i}.png" class="text-xs text-blue-600 underline">Download</a>`;
+            resDiv.appendChild(div);
+          }
+          resDiv.classList.remove('hidden');
+        };
+        reader.readAsArrayBuffer(pdfFile);
+        prog.classList.add('hidden');
+      });
+    })();
+
+    // ---------- FORMAT CONVERTER ----------
+    (function(){
+      const dz=document.getElementById('convertDropZone'), fi=document.getElementById('convertImageUpload'), dt=document.getElementById('convertDropText');
+      const fmt=document.getElementById('convertFormat'), btn=document.getElementById('convertBtn'), resDiv=document.getElementById('convertResult');
+      let imgFile=null;
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('drop',e=>{e.preventDefault(); if(e.dataTransfer.files[0]) load(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) load(fi.files[0]); });
+      function load(file){ imgFile=file; dt.textContent='✅ '+file.name; }
+      btn.addEventListener('click',()=>{
+        if(!imgFile) return alert('Upload image');
+        const reader=new FileReader();
+        reader.onload=function(e){
+          const img=new Image(); img.src=e.target.result;
+          img.onload=()=>{
+            const canvas=document.createElement('canvas'); canvas.width=img.width; canvas.height=img.height;
+            canvas.getContext('2d').drawImage(img,0,0);
+            canvas.toBlob(blob=>{
+              const url=URL.createObjectURL(blob);
+              document.getElementById('convertResultImg').src=url;
+              document.getElementById('convertDownload').href=url;
+              resDiv.classList.remove('hidden');
+            }, fmt.value);
+          };
+        };
+        reader.readAsDataURL(imgFile);
+      });
+    })();
+
+    // ---------- ROTATE & FLIP ----------
+    (function(){
+      const dz=document.getElementById('rotateDropZone'), fi=document.getElementById('rotateImageUpload'), dt=document.getElementById('rotateDropText');
+      const canvas=document.getElementById('rotateCanvas'), downBtn=document.getElementById('rotateDownload');
+      let img=null, currentAngle=0, flipX=1, flipY=1;
+      function redraw(){
+        if(!img) return;
+        const c=canvas; const ctx=c.getContext('2d');
+        c.width=img.width; c.height=img.height;
+        ctx.save(); ctx.translate(c.width/2, c.height/2);
+        ctx.rotate(currentAngle*Math.PI/180);
+        ctx.scale(flipX, flipY);
+        ctx.drawImage(img, -img.width/2, -img.height/2);
+        ctx.restore();
+        canvas.classList.remove('hidden'); downBtn.classList.remove('hidden');
+        canvas.toBlob(blob=>{ downBtn.onclick=()=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='rotated.png'; a.click(); }; });
+      }
+      dz.addEventListener('click',()=>fi.click());
+      dz.addEventListener('drop',e=>{e.preventDefault(); if(e.dataTransfer.files[0]) load(e.dataTransfer.files[0]);});
+      fi.addEventListener('change',()=>{ if(fi.files[0]) load(fi.files[0]); });
+      function load(file){
+        const r=new FileReader(); r.onload=e=>{ img=new Image(); img.onload=()=>{ currentAngle=0; flipX=1; flipY=1; redraw(); }; img.src=e.target.result; }; r.readAsDataURL(file);
+        dt.textContent='✅ '+file.name;
+      }
+      document.getElementById('rotateCW').addEventListener('click',()=>{ currentAngle+=90; redraw(); });
+      document.getElementById('rotateCCW').addEventListener('click',()=>{ currentAngle-=90; redraw(); });
+      document.getElementById('flipH').addEventListener('click',()=>{ flipX*=-1; redraw(); });
+      document.getElementById('flipV').addEventListener('click',()=>{ flipY*=-1; redraw(); });
+    })();
+  </script>
+</body>
+</html>
